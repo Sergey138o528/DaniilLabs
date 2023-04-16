@@ -3,8 +3,13 @@
 /// <summary>
 /// Класс описывает вакантрые позиции в контейнере
 /// </summary>
-internal class Vacation
+public class Vacation
 {
+    /// <summary>
+    /// Конструктор класса, инициализирует экземпляр
+    /// </summary>
+    /// <param name="startPositin"></param>
+    /// <param name="size"></param>
     public Vacation(int startPositin, int size)
     {
         StartPositin = startPositin;
@@ -14,12 +19,12 @@ internal class Vacation
     /// <summary>
     /// Начальная позиция
     /// </summary>
-    public int StartPositin { get; set; }
+    public int StartPositin;
 
     /// <summary>
     /// Размер
     /// </summary>
-    public int Size { get; set; }
+    public int Size;
 
     /// <summary>
     /// Конец позиции

@@ -3,15 +3,13 @@
 /// <summary>
 /// Класс описывает контейнер
 /// </summary>
-internal class Container
+public class Container
 {
     /// <summary>
     /// Символ для визуализации вакансии размером = 1
     /// </summary>
-    public char VacationChar
-    {
-        get => '_';
-    }
+    public char VacationChar = '_';
+
 
     /// <summary>
     /// Инициализация контейнера заданного размера
@@ -31,29 +29,29 @@ internal class Container
     }
 
     /// <summary>
+    /// Размер контейнера
+    /// </summary>
+    public int Size;
+
+    /// <summary>
     /// Вакантрые позиции в контейнере
     /// </summary>
     List<Vacation> Vacations;
 
-
-    /// <summary>
-    /// Размер контейнера
-    /// </summary>
-    public int Size { get; }
-
     /// <summary>
     /// Коллекция операций в контейнере
     /// </summary>
-    List<Operation> Items = new List<Operation>();
+    List<Operation> Operations = new List<Operation>();
 
     /// <summary>
     /// Коллекция операций не поместившихся в контейнер
     /// </summary>
-    List<Operation> ItemsFolt = new List<Operation>();
+    List<Operation> OperationsFolt = new List<Operation>();
 
-    private int _currentStep;
-
-    public int CurrentStep => _currentStep;
+    /// <summary>
+    /// Текущий шаг
+    /// </summary>
+    public int CurrentStep;
 
 
     Random _random = new Random();
@@ -62,16 +60,16 @@ internal class Container
     /// Выполнить шаг.
     /// </summary>
     /// <remarks>
-    /// Состоит из шагов:
+    /// Состоит из действий:
     /// - Пересчет операций в контейнере;
     /// - Герерация новой операции и помещение ее в контейнер;
     /// - Вывод состояния контейнера в консоль.
     /// </remarks>
     public void ExecuteNextStep()
     {
-        _currentStep++;
+        CurrentStep++;
 
-        Helper.WriteLine($"---------- Шаг N{_currentStep} ---------------------------------------------------");
+        Helper.WriteLine($"---------- Шаг N{CurrentStep} ---------------------------------------------------");
 
         ProcessingOperations();
 
@@ -87,8 +85,8 @@ internal class Container
     {
         Helper.WriteLine("3) Вывод состояния контейнера");
         // Операции
-        Helper.WriteLine($"\tОперации (занято всего {Items.Sum(item => item.Size)}):");
-        foreach (Operation operation in Items)
+        Helper.WriteLine($"\tОперации (занято всего {Operations.Sum(item => item.Size)}):");
+        foreach (Operation operation in Operations)
         {
             Helper.WriteLine($"\t\t{operation.Name}: Size = {operation.Size}, LifeTie = {operation.LifeTime}, Positions  {operation.StartPositionInContainer}-{operation.EndPositionInContainer}");
         }
@@ -104,7 +102,7 @@ internal class Container
         for (int i = 1; i <= Size; i++)
         {
             // поиск задачи по адресу
-            var item = Items.FirstOrDefault(item => item.StartPositionInContainer <= i && item.EndPositionInContainer >= i);
+            var item = Operations.FirstOrDefault(item => item.StartPositionInContainer <= i && item.EndPositionInContainer >= i);
             if (item != null)
             {
                 Helper.Write($"{item.Name}");
@@ -131,17 +129,18 @@ internal class Container
         Helper.WriteLine($"\tНовая операция: '{newOperation.Name}' Size = {newOperation.Size}, LiveTie={newOperation.LifeTime}");
 
         // поиск вакансии для новой операции
+        // todo: проверить сотрировку OrderBy
         var vacation = Vacations.Where(i => i.Size >= newOperation.Size).OrderBy(i => i.Size).ThenBy(i => i.StartPositin).FirstOrDefault();
         if (vacation == null)
         {
             Helper.WriteLine($"\tДля операции {newOperation.Name} не удалось найти вакансию размером: {newOperation.Size}", ConsoleColor.Red);
-            ItemsFolt.Add(newOperation);
+            OperationsFolt.Add(newOperation);
         }
         else
         {
             // Помещение операции в контейнер
             newOperation.StartPositionInContainer = vacation.StartPositin;
-            Items.Add(newOperation);
+            Operations.Add(newOperation);
 
             // Пересчет свободного пространства
             var vacationBalance = vacation.Size - newOperation.Size;
@@ -157,7 +156,7 @@ internal class Container
         }
 
         // Отсортируем операции по позициям в контейнере
-        Items = Items.OrderBy(item => item.StartPositionInContainer).ToList();
+        Operations = Operations.OrderBy(item => item.StartPositionInContainer).ToList();
     }
 
     /// <summary>
@@ -174,9 +173,9 @@ internal class Container
         // Пересчет времени жизни для оставшихся операций и уборка "погибших"
         Helper.WriteLine("\tУборка \"погибших\" операций");
         List<Operation> operationListToRemove = new List<Operation>();
-        for (int i = 0; i < Items.Count; i++)
+        for (int i = 0; i < Operations.Count; i++)
         {
-            var operation = Items[i];
+            var operation = Operations[i];
 
             if (operation.LifeTime <= 1)
             {
@@ -190,10 +189,13 @@ internal class Container
         }
         foreach (Operation operationToRemove in operationListToRemove)
         {
-            Items.Remove(operationToRemove);
+            Operations.Remove(operationToRemove);
             Helper.WriteLine($"\t\tУдалена опрация: '{operationToRemove.Name}' Positions: {operationToRemove.StartPositionInContainer}-{operationToRemove.EndPositionInContainer}, Size: {operationToRemove.Size}", ConsoleColor.Red);
         }
         Vacations = Vacations.OrderBy(item => item.StartPositin).ToList();
+
+
+
 
         // склеивание соседних вакансий (и упорядочевание по начальной позиции)
         Vacation itemPrevious = null;
@@ -210,7 +212,6 @@ internal class Container
                 Helper.WriteLine($"\t\tОбъединена вакансия :{itemMerged.StartPositin}-{itemMerged.EndPosition()}", ConsoleColor.Yellow);
 
                 itemPrevious = itemMerged;
-
             }
             else
             {

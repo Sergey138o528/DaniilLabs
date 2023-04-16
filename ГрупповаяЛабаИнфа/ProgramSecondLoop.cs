@@ -9,8 +9,6 @@ using ГрупповаяЛабаИнфа.Logic;
 
 namespace Laba
 {
-    //Изменения от папы
-
     #region Моя реализациия
 
     #endregion
@@ -19,10 +17,9 @@ namespace Laba
     {
         static void Main(string[] args)
         {
-
             #region Новая реализация
 
-            var container = new Container(40);
+            var container = new Container(80);
             bool NeedNextStep = true;
             while (NeedNextStep)
             {
@@ -30,7 +27,6 @@ namespace Laba
 
                 Console.WriteLine("Нажми любую клавишу для продолжения");
                 Console.ReadKey();
-                // Todo: Добавить диалог "Выполнить очередной шаг", который устанавливает значение переменной NeedNextStep
             }
 
             #endregion
