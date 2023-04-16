@@ -9,6 +9,7 @@ using ГрупповаяЛабаИнфа.Logic;
 
 namespace Laba
 {
+    //Изменения от папы
 
     #region Моя реализациия
 
