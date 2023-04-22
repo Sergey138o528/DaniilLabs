@@ -1,32 +1,33 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using ГрупповаяЛабаИнфа.Logic;
+﻿using ГрупповаяЛабаИнфа.Logic;
 
 namespace Laba
 {
-    #region Моя реализациия
-
-    #endregion
-
     class ProgramSecondLoop
     {
         static void Main(string[] args)
         {
             #region Новая реализация
 
-            var container = new Container(80);
-            bool NeedNextStep = true;
-            while (NeedNextStep)
-            {
-                container.ExecuteNextStep();
+            var container = new Container(40);
 
-                Console.WriteLine("Нажми любую клавишу для продолжения");
-                Console.ReadKey();
+            while (true)
+            {
+                Helper.WriteLine("Для продолжения нажми клавишу ([D] - шаг с дефрагментацией, [пробел] - шаг БЕЗ дефрагментации)...");
+                ConsoleKeyInfo readKey = Console.ReadKey();
+                Console.WriteLine();
+                switch (readKey.Key)
+                {
+                    case ConsoleKey.D:
+                    {
+                        container.ExecuteNextStep(5, 10, true);
+                        break;
+                    }
+                    default:
+                    {
+                        container.ExecuteNextStep(5, 10);
+                        break;
+                    }
+                }
             }
 
             #endregion

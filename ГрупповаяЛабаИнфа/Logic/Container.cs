@@ -6,10 +6,14 @@
 public class Container
 {
     /// <summary>
+    /// Признак указывающий требуется ли выполнять автоматическую дефрагменрацию на каждом шаге
+    /// </summary>
+    public bool EnableAutoDefragmentation;
+
+    /// <summary>
     /// Символ для визуализации вакансии размером = 1
     /// </summary>
     public char VacationChar = '_';
-
 
     /// <summary>
     /// Инициализация контейнера заданного размера
@@ -65,15 +69,25 @@ public class Container
     /// - Герерация новой операции и помещение ее в контейнер;
     /// - Вывод состояния контейнера в консоль.
     /// </remarks>
-    public void ExecuteNextStep()
+    public void ExecuteNextStep(int operationMaxLifeTime, int operationMaxSize, bool enableAutoDefragmentation = false)
     {
+        EnableAutoDefragmentation = enableAutoDefragmentation;
         CurrentStep++;
 
-        Helper.WriteLine($"---------- Шаг N{CurrentStep} ---------------------------------------------------");
-
+        if (EnableAutoDefragmentation)
+        {
+            Helper.Write($"---------- Шаг N{CurrentStep}");
+            Helper.Write("(с дефрагментацией)",ConsoleColor.Cyan);
+            Helper.WriteLine("--------------------------------");
+        }
+        else
+        {
+            Helper.WriteLine($"---------- Шаг N{CurrentStep}---------------------------------------------------");
+        }
+        
         ProcessingOperations();
 
-        GenerateNewOperatin(5, 10);
+        GenerateNewOperatin(operationMaxLifeTime, operationMaxSize);
 
         ShowState();
     }
@@ -126,7 +140,7 @@ public class Container
         Helper.WriteLine("2) Герерация новой операции и помещение ее в контейнер");
 
         var newOperation = CreateOperation(maxLifeTime, maxSize);
-        Helper.WriteLine($"\tНовая операция: '{newOperation.Name}' Size = {newOperation.Size}, LiveTie={newOperation.LifeTime}");
+        Helper.WriteLine($"\tНовая операция: '{newOperation.Name}' Size = {newOperation.Size}, LifeTime={newOperation.LifeTime}");
 
         // поиск вакансии для новой операции
         // todo: проверить сотрировку OrderBy
@@ -196,31 +210,81 @@ public class Container
 
 
 
-
-        // склеивание соседних вакансий (и упорядочевание по начальной позиции)
-        Vacation itemPrevious = null;
-
-        Helper.WriteLine("\tОбъединение смежных вакансий");
-        List<Vacation> newVacations = new List<Vacation>();
-        foreach (Vacation itemCurrent in Vacations)
+        if (EnableAutoDefragmentation)
         {
-            if (itemPrevious != null && itemPrevious.EndPosition() == itemCurrent.StartPositin - 1)
-            {
-                Vacation itemMerged = new Vacation(itemPrevious.StartPositin, itemPrevious.Size + itemCurrent.Size);
-                newVacations.Remove(itemPrevious);
-                newVacations.Add(itemMerged);
-                Helper.WriteLine($"\t\tОбъединена вакансия :{itemMerged.StartPositin}-{itemMerged.EndPosition()}", ConsoleColor.Yellow);
+            // Дефрагментация операция
+            Helper.WriteLine("\tДефрагментация операций:");
+            Operation operationPrevious = null;
 
-                itemPrevious = itemMerged;
+            foreach (Operation operationCurrent in Operations)
+            {
+                if (operationPrevious == null)
+                {
+                    if (operationCurrent.StartPositionInContainer != 1)
+                    {
+                        operationCurrent.StartPositionInContainer = 1;
+                        Helper.WriteLine(
+                            $"\t\t{operationCurrent.Name}, NewPositions {operationCurrent.StartPositionInContainer}-{operationCurrent.EndPositionInContainer}",
+                            ConsoleColor.Cyan);
+                    }
+                }
+                else
+                {
+                    int newStartPosition = operationPrevious.EndPositionInContainer + 1;
+                    if (operationCurrent.StartPositionInContainer != newStartPosition)
+                    {
+                        operationCurrent.StartPositionInContainer = newStartPosition;
+                        Helper.WriteLine(
+                            $"\t\t{operationCurrent.Name}, NewPositions {operationCurrent.StartPositionInContainer}-{operationCurrent.EndPositionInContainer}",
+                            ConsoleColor.Cyan);
+                    }
+                }
+
+                operationPrevious = operationCurrent;
             }
-            else
-            {
-                newVacations.Add(itemCurrent);
+            Operations = Operations.OrderBy(item => item.StartPositionInContainer).ToList();
 
-                itemPrevious = itemCurrent;
+            // Вычисление сободного пространства (вакансий)
+            if (operationPrevious != null)
+            {
+                Vacations = new List<Vacation>
+                {
+                    new Vacation(operationPrevious.EndPositionInContainer + 1,
+                        Size - operationPrevious.EndPositionInContainer)
+                };
             }
         }
-        Vacations = newVacations.OrderBy(item => item.StartPositin).ToList();
+        else
+        {
+
+            // склеивание соседних вакансий (и упорядочевание по начальной позиции)
+            Vacation itemPrevious = null;
+            Helper.WriteLine("\tОбъединение смежных вакансий");
+            List<Vacation> newVacations = new List<Vacation>();
+            foreach (Vacation itemCurrent in Vacations)
+            {
+                if (itemPrevious != null && itemPrevious.EndPosition() == itemCurrent.StartPositin - 1)
+                {
+                    Vacation itemMerged = new Vacation(itemPrevious.StartPositin, itemPrevious.Size + itemCurrent.Size);
+                    newVacations.Remove(itemPrevious);
+                    newVacations.Add(itemMerged);
+                    Helper.WriteLine($"\t\tОбъединена вакансия :{itemMerged.StartPositin}-{itemMerged.EndPosition()}", ConsoleColor.Yellow);
+
+                    itemPrevious = itemMerged;
+                }
+                else
+                {
+                    newVacations.Add(itemCurrent);
+
+                    itemPrevious = itemCurrent;
+                }
+            }
+            Vacations = newVacations.OrderBy(item => item.StartPositin).ToList();
+        }
+
+
+
+
     }
 
     private Operation CreateOperation(int maxLifeTime, int maxSize)
