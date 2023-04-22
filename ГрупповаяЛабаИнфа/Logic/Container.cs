@@ -253,6 +253,10 @@ public class Container
                         Size - operationPrevious.EndPositionInContainer)
                 };
             }
+            else
+            {
+                Vacations = new List<Vacation> {new Vacation(1, Size)};
+            }
         }
         else
         {
