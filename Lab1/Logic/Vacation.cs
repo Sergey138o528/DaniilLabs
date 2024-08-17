@@ -1,4 +1,4 @@
-﻿namespace ГрупповаяЛабаИнфа.Logic;
+﻿namespace Lab.Logic;
 
 /// <summary>
 /// Класс описывает вакантрые позиции в контейнере

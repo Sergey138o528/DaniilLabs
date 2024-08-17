@@ -1,4 +1,4 @@
-﻿using ГрупповаяЛабаИнфа.Logic;
+﻿using Lab.Logic;
 
 namespace Laba
 {
@@ -12,7 +12,8 @@ namespace Laba
 
             while (true)
             {
-                Helper.WriteLine("Для продолжения нажми клавишу ([D] - шаг с дефрагментацией, [пробел] - шаг БЕЗ дефрагментации)...");
+                Helper.WriteLine(
+                    "Для продолжения нажми клавишу ([D] - шаг с дефрагментацией, [пробел] - шаг БЕЗ дефрагментации)...");
                 ConsoleKeyInfo readKey = Console.ReadKey();
                 Console.WriteLine();
                 switch (readKey.Key)
@@ -66,12 +67,14 @@ namespace Laba
                     {
                         a++;
                     }
+
                     {
                         FirstsFreeSpots[s] = a;
                         while ((Memory[a] != EmptiSimbol) && (a < Memory.Length))
                         {
                             LastsFreeSpots[s] = a;
                         }
+
                         {
                             a++;
                         }
@@ -93,6 +96,7 @@ namespace Laba
                 {
                     OperationsNames[i] = OperationsNames[i - 1];
                 }
+
                 OperationsNames[Index] = OperationsNames[OperationsNames.Length - 1];
 
 
@@ -108,8 +112,8 @@ namespace Laba
                     }
                     else
                     {
-                        Console.WriteLine("Программа" + "'" + OperationsNames[OperationsNames.Length - 1] + "'" + "слишком велика :( ");
-
+                        Console.WriteLine("Программа" + "'" + OperationsNames[OperationsNames.Length - 1] + "'" +
+                                          "слишком велика :( ");
                     }
                 }
 
@@ -122,11 +126,13 @@ namespace Laba
                         {
                             a++;
                         }
+
                         {
                             while ((Memory[a] != OperationsNames[s]) && (a < Memory.Length))
                             {
                                 Memory[a] = (Char)3;
                             }
+
                             {
                                 a++;
                             }
@@ -161,13 +167,10 @@ namespace Laba
                 Console.WriteLine(Memory);
 
 
-
-
                 //НУЖНО СДЕЛАТЬ:
                 //Сделать       Удаление отработавшей "задачи":
                 //Расширить     Нахождение начала и конца для 1--n-ного свободного места. мб через вектор или массив
                 //Сделать       Уплотнение памяти
-
 
 
                 //Если время равно значению n-нного элемента масива "отработачных времен", n-нную задачу удаляю, удаляю и n-ый элемент

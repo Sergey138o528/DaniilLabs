@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace ГрупповаяЛабаИнфа.Logic
+namespace Lab.Logic
 {
     internal static class Helper
     {
